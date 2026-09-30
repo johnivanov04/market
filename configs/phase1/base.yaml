@@ -1,0 +1,73 @@
+# Canonical Phase-1 research configuration.
+#
+# These values encode the frozen decisions in docs/research_contract.md,
+# docs/universe_contract.md and docs/time_and_execution_contract.md.
+# Changing any of them is a research decision, not a refactor: update the contract
+# documents, version the affected spec, and update tests/unit/test_phase1_config.py.
+
+schema_version: 1
+phase: phase1
+
+timing:
+  market_timezone: America/New_York
+  signal_time: after_regular_close
+  execution_time: next_regular_session_open
+
+rebalance:
+  frequency: weekly
+  signal_session: final_regular_session_of_week
+
+primary_target:
+  horizon_sessions: 5
+  return_measure: total_return
+  entry_price: execution_session_open
+  exit_price: open_after_horizon_sessions
+  cross_sectional_transform: percentile_rank
+
+portfolio:
+  long_only: true
+  max_gross_exposure: 1.0
+
+universe:
+  version: INITIAL_UNIVERSE_V1
+  listing_scope: us_major_exchange
+  security_type: common_operating_company_equity
+  excluded_security_classes:
+    - adr
+    - closed_end_fund
+    - etf_etp
+    - otc_only
+    - preferred
+    - right
+    - spac
+    - unit
+    - warrant
+  eligibility_information: point_in_time
+  price_reference: previous_known_price
+  min_price_usd: 5.0
+  liquidity_lookback_sessions: 60
+  min_median_dollar_volume_usd: 20000000.0
+  min_history_sessions: 252
+  ranking_metric: lagged_median_dollar_volume
+  max_constituents: 1000
+
+transaction_costs:
+  basis: one_way_traded_notional
+  scenarios:
+    - name: base
+      role: base
+      one_way_bps: 10.0
+    - name: stress
+      role: stress
+      one_way_bps: 20.0
+    - name: zero_cost
+      role: diagnostic # never a reportable result
+      one_way_bps: 0.0
+
+final_holdout:
+  status: unset
+  reason: >-
+    Awaiting the data-coverage audit. Holdout dates must be frozen after that audit
+    and before any Phase-2 model tuning.
+  interval: null
+  frozen_on: null
